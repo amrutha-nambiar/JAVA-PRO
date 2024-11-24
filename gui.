@@ -1,0 +1,398 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.Random;
+import java.util.Vector;
+
+class Patient {
+    private String name;
+    private int age;
+    private String gender;
+    private String tokenNumber;
+    private String disease = "N/A";
+    private String doctorName = "N/A";
+    private double medicalFee = 0;
+
+    public Patient(String name, int age, String gender, String tokenNumber) {
+        this.name = name;
+        this.age = age;
+        this.gender = gender;
+        this.tokenNumber = tokenNumber;
+    }
+
+    // Getter methods for each field
+    public String getName() {
+        return name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public String getTokenNumber() {
+        return tokenNumber;
+    }
+
+    public String getDisease() {
+        return disease;
+    }
+
+    public String getDoctorName() {
+        return doctorName;
+    }
+
+    public double getMedicalFee() {
+        return medicalFee;
+    }
+
+    // Method to update details
+    public void updateDetails(String disease, String doctorName, double medicalFee) {
+        this.disease = disease;
+        this.doctorName = doctorName;
+        this.medicalFee = medicalFee;
+    }
+
+    // Method to display the bill
+    public void displayBill() {
+        JOptionPane.showMessageDialog(null,
+            "--- BILL DETAILS ---\n" +
+            "Patient Name      : " + name + "\n" +
+            "Doctor            : " + doctorName + "\n" +
+            "Disease           : " + disease + "\n" +
+            "Medical Fee       : $" + medicalFee + "\n" +
+            "--------------------");
+    }
+
+    // toString method to display patient details
+    public String toString() {
+        return String.format("%-15s %-6d %-10s %-15s %-20s %-20s %-10.2f",
+            name, age, gender, tokenNumber, disease, doctorName, medicalFee);
+    }
+}
+
+class PatientRegistry {
+    private Vector<Patient> patients = new Vector<>();
+
+    public boolean addPatient(Patient patient) {
+        if (patients.size() < 100) {
+            patients.add(patient);
+            return true;
+        }
+        return false;
+    }
+
+    public Patient findPatientByToken(String token) {
+        for (Patient patient : patients) {
+            if (patient.getTokenNumber().equals(token)) {
+                return patient;
+            }
+        }
+        return null;
+    }
+
+    public Vector<Patient> getAllPatients() {
+        return patients;
+    }
+}
+
+public class HospitalManagementGUI {
+    private PatientRegistry registry = new PatientRegistry();
+    private JFrame frame;
+    private JTextField nameField, ageField, tokenField;
+    private ButtonGroup genderGroup;
+    private JRadioButton maleButton, femaleButton, otherButton;
+    private JTextField otherGenderField;
+    private JPasswordField passwordField;
+    private JTable patientTable;
+    private final String adminPassword = "admin123";
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new HospitalManagementGUI().createAndShowGUI();
+            }
+        });
+    }
+
+    private void createAndShowGUI() {
+        frame = new JFrame("JJ Hospital");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(600, 500);
+        frame.setLayout(new BorderLayout());
+
+        showMainMenu();
+
+        frame.setVisible(true);
+    }
+
+    private void showMainMenu() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(4, 1));
+
+        JButton registerButton = new JButton("Register Patient");
+        registerButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                showRegistrationForm();
+            }
+        });
+
+        JButton loginButton = new JButton("Admin Login");
+        loginButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                showLoginForm();
+            }
+        });
+
+        JButton exitButton = new JButton("Exit");
+        exitButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
+
+        panel.add(registerButton);
+        panel.add(loginButton);
+        panel.add(exitButton);
+
+        frame.getContentPane().removeAll();
+        frame.getContentPane().add(panel, BorderLayout.CENTER);
+        frame.revalidate();
+    }
+
+    private void showRegistrationForm() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(7, 2));
+
+        JLabel nameLabel = new JLabel("Name: ");
+        nameField = new JTextField();
+        JLabel ageLabel = new JLabel("Age: ");
+        ageField = new JTextField();
+        JLabel genderLabel = new JLabel("Gender: ");
+        maleButton = new JRadioButton("Male");
+        femaleButton = new JRadioButton("Female");
+        otherButton = new JRadioButton("Other");
+        otherGenderField = new JTextField(); // For custom gender input
+
+        genderGroup = new ButtonGroup();
+        genderGroup.add(maleButton);
+        genderGroup.add(femaleButton);
+        genderGroup.add(otherButton);
+
+        maleButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                otherGenderField.setEnabled(false);
+            }
+        });
+
+        femaleButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                otherGenderField.setEnabled(false);
+            }
+        });
+
+        otherButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                otherGenderField.setEnabled(true);
+            }
+        });
+
+        JButton submitButton = new JButton("Register");
+        submitButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                registerPatient();
+            }
+        });
+
+        panel.add(nameLabel);
+        panel.add(nameField);
+        panel.add(ageLabel);
+        panel.add(ageField);
+        panel.add(genderLabel);
+        panel.add(maleButton);
+        panel.add(new JLabel());
+        panel.add(femaleButton);
+        panel.add(new JLabel());
+        panel.add(otherButton);
+        panel.add(new JLabel("Custom Gender:"));
+        panel.add(otherGenderField);
+        panel.add(new JLabel());
+        panel.add(submitButton);
+
+        frame.getContentPane().removeAll();
+        frame.getContentPane().add(panel, BorderLayout.CENTER);
+        frame.revalidate();
+    }
+
+    private void registerPatient() {
+        String name = nameField.getText();
+        int age = 0;
+        try {
+            age = Integer.parseInt(ageField.getText());
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(frame, "Please enter a valid age.");
+            return;
+        }
+
+        String gender = "";
+        if (maleButton.isSelected()) {
+            gender = "Male";
+        } else if (femaleButton.isSelected()) {
+            gender = "Female";
+        } else if (otherButton.isSelected()) {
+            gender = otherGenderField.getText().trim();
+            if (gender.isEmpty()) {
+                JOptionPane.showMessageDialog(frame, "Please specify a custom gender.");
+                return;
+            }
+        } else {
+            JOptionPane.showMessageDialog(frame, "Please select a gender.");
+            return;
+        }
+
+        String token = generateUniqueToken();
+
+        Patient newPatient = new Patient(name, age, gender, token);
+        if (registry.addPatient(newPatient)) {
+            JOptionPane.showMessageDialog(frame, "Patient registered. Token: " + token);
+            showMainMenu();
+        } else {
+            JOptionPane.showMessageDialog(frame, "Registration limit reached.");
+        }
+    }
+
+    private void showLoginForm() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(2, 2));
+
+        JLabel passwordLabel = new JLabel("Enter Admin Password: ");
+        passwordField = new JPasswordField();
+
+        JButton loginButton = new JButton("Login");
+        loginButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                adminLogin();
+            }
+        });
+
+        panel.add(passwordLabel);
+        panel.add(passwordField);
+        panel.add(new JLabel());
+        panel.add(loginButton);
+
+        frame.getContentPane().removeAll();
+        frame.getContentPane().add(panel, BorderLayout.CENTER);
+        frame.revalidate();
+    }
+
+    private void adminLogin() {
+        String enteredPassword = new String(passwordField.getPassword());
+
+        if (enteredPassword.equals(adminPassword)) {
+            showAdminMenu();
+        } else {
+            JOptionPane.showMessageDialog(frame, "Invalid password.");
+        }
+    }
+
+    private void showAdminMenu() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(5, 1));
+
+        JButton viewPatientsButton = new JButton("View All Patients");
+        viewPatientsButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                showPatientList();
+            }
+        });
+
+        JButton editPatientButton = new JButton("Edit Patient Details");
+        editPatientButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                editPatientDetails();
+            }
+        });
+
+        JButton viewBillButton = new JButton("View Patient Bill");
+        viewBillButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                viewBill();
+            }
+        });
+
+        JButton logoutButton = new JButton("Logout");
+        logoutButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                showMainMenu();
+            }
+        });
+
+        panel.add(viewPatientsButton);
+        panel.add(editPatientButton);
+        panel.add(viewBillButton);
+        panel.add(logoutButton);
+
+        frame.getContentPane().removeAll();
+        frame.getContentPane().add(panel, BorderLayout.CENTER);
+        frame.revalidate();
+    }
+
+    private void showPatientList() {
+        String[] columnNames = {"Name", "Age", "Gender", "Token Number", "Disease", "Doctor", "Fee"};
+        Vector<Patient> patients = registry.getAllPatients();
+        Object[][] data = new Object[patients.size()][7];
+
+        for (int i = 0; i < patients.size(); i++) {
+            data[i] = new Object[] {
+                patients.get(i).getName(),
+                patients.get(i).getAge(),
+                patients.get(i).getGender(),
+                patients.get(i).getTokenNumber(),
+                patients.get(i).getDisease(),
+                patients.get(i).getDoctorName(),
+                patients.get(i).getMedicalFee()
+            };
+        }
+
+        patientTable = new JTable(data, columnNames);
+        JOptionPane.showMessageDialog(frame, new JScrollPane(patientTable));
+    }
+
+    private void editPatientDetails() {
+        String token = JOptionPane.showInputDialog(frame, "Enter Token Number to edit details:");
+
+        Patient patient = registry.findPatientByToken(token);
+        if (patient == null) {
+            JOptionPane.showMessageDialog(frame, "Patient not found.");
+            return;
+        }
+
+        String disease = JOptionPane.showInputDialog(frame, "Enter new Disease:", patient.getDisease());
+        String doctorName = JOptionPane.showInputDialog(frame, "Enter new Doctor Name:", patient.getDoctorName());
+        double fee = Double.parseDouble(JOptionPane.showInputDialog(frame, "Enter Medical Fee:", patient.getMedicalFee()));
+
+        patient.updateDetails(disease, doctorName, fee);
+        JOptionPane.showMessageDialog(frame, "Patient details updated.");
+    }
+
+    private void viewBill() {
+        String token = JOptionPane.showInputDialog(frame, "Enter Token Number to view bill:");
+
+        Patient patient = registry.findPatientByToken(token);
+        if (patient == null) {
+            JOptionPane.showMessageDialog(frame, "Patient not found.");
+            return;
+        }
+
+        patient.displayBill();
+    }
+
+    private String generateUniqueToken() {
+        Random random = new Random();
+        int tokenNumber = random.nextInt(9000) + 1000; // Generates a token number between 1000-9999
+        return String.valueOf(tokenNumber);
+    }
+}
