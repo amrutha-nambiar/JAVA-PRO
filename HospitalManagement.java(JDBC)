@@ -2,29 +2,37 @@ import java.sql.*;
 import java.util.Random;
 import java.util.Scanner;
 
-public class HospitalManagement {
+public class HospitalManagement
+{
     private Connection connection;
     private Scanner scanner = new Scanner(System.in);
     private final String adminPassword = "admin123";
 
-    public static void main(String[] args) {
+    public static void main(String[] args)
+    {
         new HospitalManagement().mainMenu();
     }
 
-    public HospitalManagement() {
-        try {
+    public HospitalManagement()
+    {
+        try
+        {
             // Establish database connection
             Class.forName("com.mysql.cj.jdbc.Driver");
             connection = DriverManager.getConnection(
                 "jdbc:mysql://localhost:3306/hospitaldb", "root", "");
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             System.out.println("Error connecting to database: " + e.getMessage());
             System.exit(1);
         }
     }
 
-    private void mainMenu() {
-        while (true) {
+    private void mainMenu()
+    {
+        while (true)
+        {
             System.out.println("\n--- WELCOME TO JJ HOSPITAL ---");
             System.out.println("1. Register Patient");
             System.out.println("2. Admin Login");
@@ -33,15 +41,18 @@ public class HospitalManagement {
             int choice = scanner.nextInt();
             scanner.nextLine();
 
-            switch (choice) {
+            switch (choice)
+            {
                 case 1 -> registerPatient();
-                case 2 -> {
-                    if (adminLogin()) 
+                case 2 ->
+                {
+                    if (adminLogin())
                         adminMenu();
-                    else 
+                    else
                         System.out.println("Invalid password.");
                 }
-                case 3 -> {
+                case 3 ->
+                {
                     System.out.println("Thank you for visiting JJ Hospital.");
                     return;
                 }
@@ -50,13 +61,16 @@ public class HospitalManagement {
         }
     }
 
-    private boolean adminLogin() {
+    private boolean adminLogin()
+    {
         System.out.print("Enter Admin Password: ");
         return scanner.nextLine().equals(adminPassword);
     }
 
-    private void registerPatient() {
-        try {
+    private void registerPatient()
+    {
+        try
+        {
             System.out.print("Enter patient name: ");
             String name = scanner.nextLine();
             System.out.print("Enter patient age: ");
@@ -76,13 +90,17 @@ public class HospitalManagement {
             stmt.executeUpdate();
 
             System.out.println("Patient registered successfully. Token: " + token);
-        } catch (SQLException e) {
+        }
+        catch (SQLException e)
+        {
             System.out.println("Error registering patient: " + e.getMessage());
         }
     }
 
-    private void adminMenu() {
-        while (true) {
+    private void adminMenu()
+    {
+        while (true)
+        {
             System.out.println("\nAdmin Menu:");
             System.out.println("1. View all patients");
             System.out.println("2. Edit patient details");
@@ -92,11 +110,13 @@ public class HospitalManagement {
             int choice = scanner.nextInt();
             scanner.nextLine();
 
-            switch (choice) {
+            switch (choice)
+            {
                 case 1 -> viewAllPatients();
                 case 2 -> editPatientDetails();
                 case 3 -> displayPatientBill();
-                case 4 -> {
+                case 4 ->
+                {
                     return;
                 }
                 default -> System.out.println("Invalid choice. Try again.");
@@ -104,30 +124,37 @@ public class HospitalManagement {
         }
     }
 
-    private void viewAllPatients() {
-        try {
+    private void viewAllPatients()
+    {
+        try
+        {
             Statement stmt = connection.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT * FROM patients");
-            System.out.printf("%-10s %-15s %-6s %-10s %-15s %-15s %-10s%n", 
+            System.out.printf("%-10s %-15s %-6s %-10s %-15s %-15s %-10s%n",
                 "Token", "Name", "Age", "Gender", "Disease", "Doctor", "Fee");
             System.out.println("----------------------------------------------------------------------");
-            while (rs.next()) {
-                System.out.printf("%-10s %-15s %-6d %-10s %-15s %-15s %-10.2f%n", 
-                    rs.getString("token_number"), 
-                    rs.getString("name"), 
-                    rs.getInt("age"), 
-                    rs.getString("gender"), 
-                    rs.getString("disease"), 
-                    rs.getString("doctor_name"), 
+            while (rs.next())
+            {
+                System.out.printf("%-10s %-15s %-6d %-10s %-15s %-15s %-10.2f%n",
+                    rs.getString("token_number"),
+                    rs.getString("name"),
+                    rs.getInt("age"),
+                    rs.getString("gender"),
+                    rs.getString("disease"),
+                    rs.getString("doctor_name"),
                     rs.getDouble("medical_fee"));
             }
-        } catch (SQLException e) {
+        }
+        catch (SQLException e)
+        {
             System.out.println("Error fetching patients: " + e.getMessage());
         }
     }
 
-    private void editPatientDetails() {
-        try {
+    private void editPatientDetails()
+    {
+        try
+        {
             System.out.print("Enter patient token number: ");
             String token = scanner.nextLine();
 
@@ -147,18 +174,25 @@ public class HospitalManagement {
             stmt.setString(4, token);
             int rows = stmt.executeUpdate();
 
-            if (rows > 0) {
+            if (rows > 0)
+            {
                 System.out.println("Patient details updated successfully.");
-            } else {
+            }
+            else
+            {
                 System.out.println("Patient not found.");
             }
-        } catch (SQLException e) {
+        }
+        catch (SQLException e)
+        {
             System.out.println("Error updating patient details: " + e.getMessage());
         }
     }
 
-    private void displayPatientBill() {
-        try {
+    private void displayPatientBill()
+    {
+        try
+        {
             System.out.print("Enter token number: ");
             String token = scanner.nextLine();
 
@@ -167,22 +201,28 @@ public class HospitalManagement {
             stmt.setString(1, token);
             ResultSet rs = stmt.executeQuery();
 
-            if (rs.next()) {
+            if (rs.next())
+            {
                 System.out.println("\n--- BILL DETAILS ---");
                 System.out.println("Patient Name : " + rs.getString("name"));
                 System.out.println("Doctor       : " + rs.getString("doctor_name"));
                 System.out.println("Disease      : " + rs.getString("disease"));
                 System.out.println("Medical Fee  : $" + rs.getDouble("medical_fee"));
                 System.out.println("-----------------------------------------------------------------------------------------------------");
-            } else {
+            }
+            else
+            {
                 System.out.println("Patient not found.");
             }
-        } catch (SQLException e) {
+        }
+        catch (SQLException e)
+        {
             System.out.println("Error displaying bill: " + e.getMessage());
         }
     }
 
-    private String generateUniqueToken() {
+    private String generateUniqueToken()
+    {
         return String.format("%06d", new Random().nextInt(1000000));
     }
 }
