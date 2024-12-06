@@ -98,7 +98,7 @@ public class HospitalManagement
 {
     private PatientRegistry registry = new PatientRegistry();
     private Scanner scanner = new Scanner(System.in);
-    private final String adminPassword = "admin123";
+    private final String adminPassword = "MICKEYMOUSE";
 
     public static void main(String[] args) 
     {
